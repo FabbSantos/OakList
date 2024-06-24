@@ -5,13 +5,20 @@
         const itemDesc = ref('');
         const itemValue = ref('');
         const isAvailable = ref(false);
-        var isValidNumber = true;
         const validationMessage = ref('');
+        const storedListItem = localStorage.getItem('listItem');
 
+        var isValidNumber = true;
         var ListItem = ref([]);
 
+        
+
+        if (storedListItem) {
+                ListItem.value = JSON.parse(storedListItem);
+        }
+        
+        
         function addToList() {
-                event.preventDefault();
                 if (itemName.value && itemDesc.value && itemValue.value) {
                         ListItem.value.push({
                                 name: itemName.value,
@@ -23,12 +30,37 @@
                         itemDesc.value = '';
                         itemValue.value = '';
                         isAvailable.value = false;
+                        localStorage.setItem('listItem', JSON.stringify(ListItem.value));
+                }
+        }
+
+        function sortList (filter){
+                if(filter === 'asc'){
+                        ListItem.value.sort((a, b) => a.value - b.value);
+                } else {
+                        ListItem.value.sort((a, b) => b.value - a.value);
                 }
         }
         
         function validateInput() {
                 validationMessage.value = ''; 
                 var numberPattern = /^[0-9]+([.])?[0-9]*([0-9]+)?$/;
+                var namePattern = /^[a-zA-Z]+$/;
+                var descriptionPattern = /^[a-zA-Z0-9]+$/;
+                if (!descriptionPattern.test(itemDesc.value)) {
+                        itemDesc.value = '';
+                        validationMessage.value = 'Please enter a valid description.';
+                        setTimeout(() => {
+                                validationMessage.value = '';
+                        }, 2000);
+                }
+                if (!namePattern.test(itemName.value)) {
+                        itemName.value = '';
+                        validationMessage.value = 'Please enter a valid name.';
+                        setTimeout(() => {
+                                validationMessage.value = '';
+                        }, 2000);
+                }
                 if (!numberPattern.test(itemValue.value)) {
                         itemValue.value = '';
                         isValidNumber = false;
@@ -43,27 +75,32 @@
 
 <template>
         <div class="container">
+                <div :v-if="ListItem.length > 0">
+                        <h3>Items in the list:</h3>
+                        <table>
+                                <th>Name</th>
+                                <th>Value (R$)
+                                        <button @click="sortList('asc')">⬆️</button>
+                                        <button @click="sortList('desc')">⬇️</button>
+
+                                </th>
+                                <th>Description</th>
+                                <th>Available?</th>
+
+                                <tr v-for="item in ListItem" :key="item.name">
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.value }}</td>
+                                        <td>{{ item.description }}</td>
+                                        <td>{{ item.isAvailable ? '✅' : '❌' }}</td>
+                                </tr>
+                        </table>
+                </div>
+
                 <h2>
                         Add a new item to the list!
                 </h2>
 
-
-                <div>
-                        <h3>Items in the list:</h3>
-                        <!-- {{ ListItem }} -->
-                        <ul>
-                                <li v-for="item in ListItem" :key="item.name">
-                                        <p>Item name: {{ item.name }}</p>
-                                        <p>Item description: {{ item.description }}</p>
-                                        <p>Item value: {{ item.value }}</p>
-                                        <p>Item is available: {{ item.isAvailable }}</p>
-                                </li>
-                        </ul>
-                </div>
-
-
-
-                <form action="#" @submit="addToList">
+                <form @submit.prevent="addToList">
                         <div class="input-group">
                                 <input type="text" id="itemName" placeholder="Enter item name" v-model="itemName" />
                                 <label for="itemName"> Enter item name</label>
@@ -88,7 +125,7 @@
                                 <input type="checkbox" id="isAvailable" v-model="isAvailable" />
                         </div>
 
-                        <button> Add to the list </button>
+                        <button type="submit"> Add to the list </button>
                 </form>
         </div>
 </template>
@@ -135,5 +172,44 @@
                 padding: 0.5rem;
                 border-radius: 0.5rem;
                 width: 100%;
+        }
+        th, td {
+               padding: 5px 10px;
+               border: 1px solid black;
+                text-align: center;
+        }      
+
+        button {
+                padding: 0.1rem; 
+                margin-inline: .7rem;
+                border-radius: 0.5rem;
+                /* border: none; */
+                background-color: transparent;
+                color: #fff;
+                cursor: pointer;
+        }
+        button:hover {
+                background-color: #000;
+        }
+        button[type="submit"] {
+                background-color: #000;
+                color: #fff;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 0.5rem;
+                cursor: pointer;
+        }       
+        button[type="submit"]:hover {
+                border: 1px solid #fff;
+        }
+
+
+        @media (max-width: 768px) {
+                .container {
+                        gap: 1rem;
+                }
+                form {
+                        flex-direction: column;
+                }
         }
 </style>
