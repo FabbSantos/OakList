@@ -4,7 +4,7 @@
 
         const itemName = ref('');
         const itemDesc = ref('');
-        const itemValue = ref(-1);
+        const itemValue = ref<number | null>(null);
         const isAvailable = ref(false);
         const validationMessage = ref('');
         const storedListItem = localStorage.getItem('listItem');
@@ -28,7 +28,7 @@
                         });
                         itemName.value = '';
                         itemDesc.value = '';
-                        itemValue.value = -1;
+                        itemValue.value = null;
                         isAvailable.value = false;
                         localStorage.setItem('listItem', JSON.stringify(ListItem.value));
                 }
@@ -36,9 +36,9 @@
 
         function sortList (filter:string){
                 if(filter === 'asc'){
-                        ListItem.value.sort((a, b) => a.value - b.value);
+                        ListItem.value.sort((a, b) => (a.value ?? 0) - (b.value ?? 0));
                 } else {
-                        ListItem.value.sort((a, b) => b.value - a.value);
+                        ListItem.value.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
                 }
         }
         
@@ -61,7 +61,7 @@
                                 validationMessage.value = '';
                         }, 2000);
                 }
-                if (!numberPattern.test(itemValue.value.toString())) {
+                if (!numberPattern.test((itemValue.value ?? '').toString())) {
                         itemValue.value = -1;
                         isValidNumber = false;
                         validationMessage.value = 'Please enter a valid number.';
