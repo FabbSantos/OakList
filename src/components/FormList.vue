@@ -1,17 +1,17 @@
-<script setup>
+<script setup lang="ts">
         import { ref } from 'vue';
+        import type {Item} from '@/types/Item';
 
         const itemName = ref('');
         const itemDesc = ref('');
-        const itemValue = ref('');
+        const itemValue = ref(-1);
         const isAvailable = ref(false);
         const validationMessage = ref('');
         const storedListItem = localStorage.getItem('listItem');
 
         var isValidNumber = true;
-        var ListItem = ref([]);
+        var ListItem = ref<Array<Item>>([]);
 
-        
 
         if (storedListItem) {
                 ListItem.value = JSON.parse(storedListItem);
@@ -28,13 +28,13 @@
                         });
                         itemName.value = '';
                         itemDesc.value = '';
-                        itemValue.value = '';
+                        itemValue.value = -1;
                         isAvailable.value = false;
                         localStorage.setItem('listItem', JSON.stringify(ListItem.value));
                 }
         }
 
-        function sortList (filter){
+        function sortList (filter:string){
                 if(filter === 'asc'){
                         ListItem.value.sort((a, b) => a.value - b.value);
                 } else {
@@ -61,8 +61,8 @@
                                 validationMessage.value = '';
                         }, 2000);
                 }
-                if (!numberPattern.test(itemValue.value)) {
-                        itemValue.value = '';
+                if (!numberPattern.test(itemValue.value.toString())) {
+                        itemValue.value = -1;
                         isValidNumber = false;
                         validationMessage.value = 'Please enter a valid number.';
                         setTimeout(() => {
