@@ -1,5 +1,5 @@
 <script setup>
-  import FormList from './components/FormList.vue';
+  import FormList from '@/components/FormList.vue';
 </script>
 
 <template>
